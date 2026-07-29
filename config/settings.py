@@ -173,3 +173,13 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+import os
+
+# MEDIA CONFIGURATION
+# ------------------------------------------------------------------------------
+# URL that handles the media served from MEDIA_ROOT
+MEDIA_URL = '/media/'
+
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

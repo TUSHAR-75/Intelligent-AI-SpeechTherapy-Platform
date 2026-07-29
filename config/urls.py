@@ -23,12 +23,33 @@ Including another URLconf
 # ]
 
 
+# from django.contrib import admin
+# from django.urls import path, include
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+    
+#     # Route any traffic starting with /api/users/ to our users app routing table
+#     path('api/users/', include('users.urls')),
+# ]
+
+
+# module 4
+
+
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    # Route any traffic starting with /api/users/ to our users app routing table
     path('api/users/', include('users.urls')),
+    # We will create the exercises urls next!
+    path('api/exercises/', include('exercises.urls')), 
 ]
+
+# Only serve media files through Django in development. 
+# In production, Nginx or AWS S3 will handle this for performance.
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
