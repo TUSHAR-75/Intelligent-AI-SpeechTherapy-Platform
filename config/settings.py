@@ -147,3 +147,29 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Instruct Django to use our CustomUser model for authentication context
 AUTH_USER_MODEL = 'users.CustomUser'
+
+
+from datetime import timedelta
+
+# Django REST Framework Global Settings
+REST_FRAMEWORK = {
+    # Default authentication: Require a valid JWT token for API calls
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    # Default permission: Block anonymous users from accessing APIs unless explicitly allowed
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+# SimpleJWT Customization Settings
+SIMPLE_JWT = {
+    # Access tokens expire quickly (60 minutes) for security
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    # Refresh tokens last longer (7 days) so users don't have to log in every hour
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
