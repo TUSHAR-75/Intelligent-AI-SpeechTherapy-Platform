@@ -1,5 +1,29 @@
+# Virtual Environment
 venv/
+ENV/
+env/
+
+# Environment Variables & Secrets
 .env
-*.pyc
+.env.local
+
+# Python Bytecode & Cache
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Databases
 db.sqlite3
+*.sqlite3
+
+# User-Uploaded Media & Static Output
+media/
+!media/.gitkeep
+
+# IDE / OS Specific
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
