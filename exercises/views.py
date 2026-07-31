@@ -3,45 +3,68 @@
 # # # Create your views here.
 
 
-# from rest_framework import generics, permissions, status
-# from rest_framework.response import Response
-# from rest_framework.parsers import MultiPartParser, FormParser
-# from .models import TherapyExercise, SpeechAttempt
-# from .serializers import TherapyExerciseSerializer, SpeechAttemptSerializer
-# from .services import normalize_audio_for_ai
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
+from .models import TherapyExercise, SpeechAttempt
+from .serializers import TherapyExerciseSerializer, SpeechAttemptSerializer
+from .services import normalize_audio_for_ai
 
-# class ExerciseListView(generics.ListAPIView):
-#     """ GET /api/exercises/ - Returns available therapy exercises """
-#     queryset = TherapyExercise.objects.all()
-#     serializer_class = TherapyExerciseSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+class ExerciseListView(generics.ListAPIView):
+    """ GET /api/exercises/ - Returns available therapy exercises """
+    queryset = TherapyExercise.objects.all()
+    serializer_class = TherapyExerciseSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-# class SpeechAttemptCreateView(generics.CreateAPIView):
-#     """ 
-#     POST /api/exercises/attempts/ 
-#     Accepts an audio file and an exercise ID.
-#     """
-#     queryset = SpeechAttempt.objects.all()
-#     serializer_class = SpeechAttemptSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+class SpeechAttemptCreateView(generics.CreateAPIView):
+    """ 
+    POST /api/exercises/attempts/ 
+    Accepts an audio file and an exercise ID.
+    """
+    queryset = SpeechAttempt.objects.all()
+    serializer_class = SpeechAttemptSerializer
+    permission_classes = [permissions.IsAuthenticated]
     
-#     # CRITICAL: Tell DRF to accept file uploads, not just JSON
-#     parser_classes = [MultiPartParser, FormParser]
+    # CRITICAL: Tell DRF to accept file uploads, not just JSON
+    parser_classes = [MultiPartParser, FormParser]
 
-#     def perform_create(self, serializer):
-#         # 1. Save the initial database record and tie it to the logged-in user
-#         attempt = serializer.save(user=self.request.user)
+    # def perform_create(self, serializer):
+    #     # 1. Save the initial database record and tie it to the logged-in user
+    #     attempt = serializer.save(user=self.request.user)
         
-#         # 2. Get the absolute file path of the saved audio
-#         raw_audio_path = attempt.audio_file.path
+    #     # 2. Get the absolute file path of the saved audio
+    #     raw_audio_path = attempt.audio_file.path
         
-#         # 3. Pass it to our processing pipeline
-#         # (In Module 5, we will pass this normalized path to Whisper!)
-#         normalized_path = normalize_audio_for_ai(raw_audio_path)
+    #     # 3. Pass it to our processing pipeline
+    #     # (In Module 5, we will pass this normalized path to Whisper!)
+    #     normalized_path = normalize_audio_for_ai(raw_audio_path)
         
-#         # Optional: We could update the database to point to the new .wav file here,
-#         # but for now, we just ensure the pipeline successfully creates it.
+    #     # Optional: We could update the database to point to the new .wav file here,
+    #     # but for now, we just ensure the pipeline successfully creates it.
+# modeule6:
 
+def perform_create(self, serializer):
+        attempt = serializer.save(user=self.request.user)
+        raw_audio_path = attempt.audio_file.path
+        normalized_path = normalize_audio_for_ai(raw_audio_path)
+        
+        target_text = attempt.exercise.target_text
+        
+        # 1. Get Word-level Transcription & Score
+        from .ai_engine import analyze_speech_attempt, analyze_phonemes
+        transcribed_text, accuracy_score = analyze_speech_attempt(
+            normalized_path, 
+            target_text
+        )
+        
+        # 2. Get Phoneme-level breakdown (e.g., {"R": 50.0, "T": 100.0})
+        phoneme_scores = analyze_phonemes(target_text, transcribed_text)
+        
+        # 3. Save everything to PostgreSQL
+        attempt.transcribed_text = transcribed_text
+        attempt.overall_score = accuracy_score
+        attempt.phoneme_scores = phoneme_scores # This saves seamlessly to our JSONField!
+        attempt.save()
 
 # module 5
 

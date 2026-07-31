@@ -1,3 +1,8 @@
+from g2p_en import G2p
+
+# Initialize the G2P engine globally alongside Whisper
+g2p = G2p()
+
 import whisper
 import jiwer
 import logging
@@ -47,3 +52,49 @@ def analyze_speech_attempt(audio_path, target_text):
     except Exception as e:
         logger.error(f"AI Engine Error: {str(e)}")
         raise RuntimeError("Failed to analyze speech audio.")
+
+
+
+def analyze_phonemes(target_text, transcribed_text):
+    """
+    Converts both texts to phonemes and calculates accuracy per phoneme.
+    Returns a dictionary of phoneme scores.
+    """
+    # 1. Convert texts to lists of phonemes
+    # g2p("hello") -> ['HH', 'AH0', 'L', 'OW1']
+    # We filter out spaces and punctuation (which g2p leaves as strings)
+    target_phonemes = [p for p in g2p(target_text) if p.isalpha()]
+    spoken_phonemes = [p for p in g2p(transcribed_text) if p.isalpha()]
+
+    # 2. Track occurrences and errors
+    # We will build a dictionary: {"R": {"total": 2, "correct": 1}, ...}
+    tracking = {phoneme: {"total": 0, "correct": 0} for phoneme in set(target_phonemes)}
+    
+    for phoneme in target_phonemes:
+        tracking[phoneme]["total"] += 1
+        # Simple heuristic alignment for MVP:
+        # If the phoneme exists in the spoken text, we count it as correct 
+        # and remove it from the spoken list to handle duplicates properly.
+        if phoneme in spoken_phonemes:
+            tracking[phoneme]["correct"] += 1
+            spoken_phonemes.remove(phoneme)
+
+    # 3. Calculate percentages
+    phoneme_scores = {}
+    for phoneme, stats in tracking.items():
+        # Strip numbers (e.g., 'AH0' -> 'AH') which represent stress markers
+        base_phoneme = ''.join([c for c in phoneme if not c.isdigit()])
+        
+        accuracy = (stats["correct"] / stats["total"]) * 100
+        
+        # If the base phoneme is already in our dict, average it out
+        if base_phoneme in phoneme_scores:
+            phoneme_scores[base_phoneme] = (phoneme_scores[base_phoneme] + accuracy) / 2
+        else:
+            phoneme_scores[base_phoneme] = accuracy
+
+    # Round all scores
+    for k in phoneme_scores:
+        phoneme_scores[k] = round(phoneme_scores[k], 2)
+
+    return phoneme_scores
