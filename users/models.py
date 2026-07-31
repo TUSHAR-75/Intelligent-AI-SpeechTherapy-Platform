@@ -2,6 +2,7 @@
 
 # # Create your models here.
 
+from django.utils import timezone
 
 
 import uuid
@@ -67,5 +68,15 @@ class UserProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # --- NEW GAMIFICATION FIELDS ---
+    xp_points = models.IntegerField(default=0, help_text="Experience points earned through practice.")
+    current_streak = models.IntegerField(default=0, help_text="Consecutive days practiced.")
+    longest_streak = models.IntegerField(default=0)
+    last_practice_date = models.DateField(null=True, blank=True)
+
     def __str__(self):
         return f"Profile: {self.user.email} - Role: {self.role}"
+
+
+
+

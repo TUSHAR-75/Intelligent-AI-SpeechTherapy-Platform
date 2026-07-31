@@ -154,6 +154,8 @@ from .serializers import TherapyExerciseSerializer, SpeechAttemptSerializer
 from .services import normalize_audio_for_ai
 from .ai_engine import analyze_speech_attempt, analyze_phonemes
 
+from users.services import update_user_gamification
+
 
 class ExerciseListView(generics.ListAPIView):
     """
@@ -203,6 +205,9 @@ class SpeechAttemptCreateView(generics.CreateAPIView):
         # --- NEW CODE ---
         # Automatically update the user's AI profile based on this new attempt!
         recalculate_user_weak_phonemes(self.request.user.profile)
+        # --- NEW CODE ---
+        # Award XP and update daily streak
+        update_user_gamification(self.request.user.profile, accuracy_score)
 
 
 from django.db.models import Q

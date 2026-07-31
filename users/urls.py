@@ -5,6 +5,8 @@ from rest_framework_simplejwt.views import (
 )
 from .views import RegisterView, UserProfileView
 
+from .views import UserAnalyticsDashboardView
+
 urlpatterns = [
     # Authentication Endpoints
     path('register/', RegisterView.as_view(), name='auth_register'),
@@ -13,4 +15,6 @@ urlpatterns = [
     
     # Profile Endpoints
     path('me/', UserProfileView.as_view(), name='user_profile'),
+
+    path('analytics/', UserAnalyticsDashboardView.as_view(), name='user_analytics'),
 ]

@@ -27,3 +27,5 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'overall_accuracy_score', 'created_at')
     list_filter = ('role',)
     search_fields = ('user__email', 'user__username')
+
+

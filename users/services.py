@@ -1,3 +1,7 @@
+
+from django.utils import timezone
+from datetime import timedelta
+
 from collections import defaultdict
 from exercises.models import SpeechAttempt
 
@@ -40,3 +44,38 @@ def recalculate_user_weak_phonemes(user_profile):
     user_profile.save()
 
     return weak_phonemes
+
+def update_user_gamification(user_profile, score):
+    """
+    Awards XP based on performance and calculates the daily practice streak.
+    Called every time a user successfully completes a speech attempt.
+    """
+    today = timezone.now().date()
+    
+    # 1. XP Calculation Logic
+    # Earn 10 XP for trying, plus bonus XP based on how high the score was.
+    earned_xp = 10 + int(score * 0.5) 
+    user_profile.xp_points += earned_xp
+
+    # 2. Streak Calculation Logic
+    if user_profile.last_practice_date:
+        delta = today - user_profile.last_practice_date
+
+        if delta.days == 1:
+            # Practiced yesterday! Increment streak.
+            user_profile.current_streak += 1
+        elif delta.days > 1:
+            # Missed a day. Streak broken.
+            user_profile.current_streak = 1
+        # If delta.days == 0, they already practiced today. Do nothing to the streak.
+    else:
+        # Very first time practicing!
+        user_profile.current_streak = 1
+
+    # 3. Update longest streak if necessary
+    if user_profile.current_streak > user_profile.longest_streak:
+        user_profile.longest_streak = user_profile.current_streak
+
+    # 4. Save state
+    user_profile.last_practice_date = today
+    user_profile.save()
