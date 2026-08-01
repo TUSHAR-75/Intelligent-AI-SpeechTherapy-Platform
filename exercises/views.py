@@ -15,6 +15,9 @@ from .llm_service import generate_therapeutic_feedback
 
 from users.services import recalculate_user_weak_phonemes, update_user_gamification
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 
 class ExerciseListView(generics.ListAPIView):
     """
@@ -23,6 +26,12 @@ class ExerciseListView(generics.ListAPIView):
     queryset = TherapyExercise.objects.all()
     serializer_class = TherapyExerciseSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    # --- NEW CODE: CACHING ---
+    # Cache the output of this view in server memory for 15 minutes (60 seconds * 15)
+    @method_decorator(cache_page(60 * 15))
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class SpeechAttemptCreateView(generics.CreateAPIView):

@@ -69,13 +69,17 @@ class SpeechAttempt(models.Model):
     # Detailed phoneme breakdown output: e.g., {"R": 85.5, "TH": 42.0}
     phoneme_scores = models.JSONField(default=dict, blank=True)
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    # created_at = models.DateTimeField(auto_now_add=True)
 
     ai_feedback = models.TextField(
         blank=True, 
         null=True, 
         help_text="Actionable LLM-generated feedback based on the acoustic analysis."
     )
+
+    # --- UPDATED FIELD ---
+    # db_index=True tells PostgreSQL to build a background B-Tree index for this column
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         ordering = ['-created_at']

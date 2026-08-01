@@ -163,6 +163,16 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    # --- NEW CODE: SECURITY THROTTLING ---
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        # Anonymous users (unauthenticated IPs) can only hit endpoints 10 times a day
+        'anon': '10/day',
+        # Authenticated users get 1000 requests per day
+        'user': '1000/day'}
 }
 
 # SimpleJWT Customization Settings
