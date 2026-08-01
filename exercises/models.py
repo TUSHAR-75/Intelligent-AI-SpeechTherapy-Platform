@@ -32,6 +32,13 @@ class TherapyExercise(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    is_interview_mode = models.BooleanField(
+        default=False, 
+        help_text="If True, this is a professional interview question rather than a clinical phoneme test."
+    )
+
+
+
     def __str__(self):
         return f"[{self.difficulty}] {self.title}"
 
@@ -63,6 +70,12 @@ class SpeechAttempt(models.Model):
     phoneme_scores = models.JSONField(default=dict, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
+
+    ai_feedback = models.TextField(
+        blank=True, 
+        null=True, 
+        help_text="Actionable LLM-generated feedback based on the acoustic analysis."
+    )
 
     class Meta:
         ordering = ['-created_at']
