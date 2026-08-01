@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third-party packages
+    'corsheaders',
     'rest_framework',
 
     # Internal Local Apps
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -183,3 +185,7 @@ MEDIA_URL = '/media/'
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# During local development, we allow all ports (like localhost:3000 or localhost:5173) to connect.
+# In production, we will lock this down to your actual domain name!
+CORS_ALLOW_ALL_ORIGINS = True

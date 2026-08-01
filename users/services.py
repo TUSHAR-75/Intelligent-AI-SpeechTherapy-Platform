@@ -79,3 +79,5 @@ def update_user_gamification(user_profile, score):
     # 4. Save state
     user_profile.last_practice_date = today
     user_profile.save()
+
+
